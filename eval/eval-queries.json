@@ -1,0 +1,152 @@
+[
+  {
+    "query": "Why isn't my BroadcastReceiver firing when I send ACTION_MY_PACKAGE_REPLACED on Android 14? I declared it in the manifest with the correct intent filter but it just doesn't get called. minSdk 28, targetSdk 34, Kotlin.",
+    "expected": "android-app-development",
+    "rationale": "App dev troubleshooting platform behavior. Mentions targetSdk, Kotlin, manifest, Android 14. Classic app-dev debugging scenario."
+  },
+  {
+    "query": "I'm forking AOSP 15 to ship an OEM build and I need to understand how PackageManager handles signature verification for system apps. Specifically how the platform_certificates list is loaded at boot.",
+    "expected": "aosp-platform-development",
+    "rationale": "OEM platform engineer. References AOSP 15, system_server-level concerns (PackageManager, signature verification, boot)."
+  },
+  {
+    "query": "Help me set up Hilt dependency injection in my Compose multi-module app. I have a feature module and a core module, and I want to share a singleton repository.",
+    "expected": "neither",
+    "rationale": "Pure app architecture question. No platform internals needed; Hilt + Compose docs are sufficient."
+  },
+  {
+    "query": "I'm working on CarUxRestrictionsManagerService in AAOS 16 and I want to know how the driving state propagation differs from how it worked in AAOS 14. Specifically the fault-default behavior when state is UNKNOWN.",
+    "expected": "aosp-platform-development",
+    "rationale": "AAOS platform engineer comparing versions. Safety-critical (fault defaults). Hits multiple platform-dev triggers."
+  },
+  {
+    "query": "My WorkManager periodic work is supposed to run every 15 minutes but on some Pixel devices running Android 14 it sometimes goes 2-3 hours without running. The device isn't dozing as far as I can tell.",
+    "expected": "android-app-development",
+    "rationale": "App dev with platform-impacting issue. WorkManager + targetSdk visible + 'my app' implied. Will need AOSP context to fully answer."
+  },
+  {
+    "query": "I'm reading frameworks/base/services/core/java/com/android/server/job/JobSchedulerService.java and trying to understand the mBackgroundJobsDelay logic. When exactly is this delay applied?",
+    "expected": "aosp-platform-development",
+    "rationale": "Direct reference to platform file under frameworks/base/services/. Reading platform code directly."
+  },
+  {
+    "query": "What's the best way to handle configuration changes in Compose? Should I use rememberSaveable or hoist the state to a ViewModel?",
+    "expected": "neither",
+    "rationale": "Pure Compose architecture question. Jetpack docs/best practices, no AOSP relevance."
+  },
+  {
+    "query": "I have an SELinux denial in dmesg when my system service tries to write to /data/vendor/myco. The avc message says I need write permission for vendor_data_file. How do I add the right .te rule?",
+    "expected": "aosp-platform-development",
+    "rationale": "SELinux policy work, platform-level. Hits the .te/SELinux trigger explicitly."
+  },
+  {
+    "query": "Why does my foreground Service get killed after a few minutes on Android 14 even though I declared the type as 'dataSync' in the manifest? It used to work fine on Android 12.",
+    "expected": "android-app-development",
+    "rationale": "App dev hitting Android 14 foreground service behavior change. Will need AOSP context to explain what changed."
+  },
+  {
+    "query": "Can you review this commit message and suggest improvements? It's for a feature where I added pagination to my user list screen.",
+    "expected": "neither",
+    "rationale": "Code review / writing task. No Android-specific platform context."
+  },
+  {
+    "query": "I need to understand how WindowManager's IWindowMagnifier hidden interface is implemented in AOSP 16 so I can write a launcher that respects accessibility magnification.",
+    "expected": "aosp-platform-development",
+    "rationale": "Hidden API on the platform side, WindowManager internals, AOSP 16 version. Platform reading even though the consumer is a launcher app."
+  },
+  {
+    "query": "What happens internally when I call Activity.finish() vs finishAffinity() vs finishAndRemoveTask()? I want to understand which one to use for my checkout flow.",
+    "expected": "android-app-development",
+    "rationale": "App dev wanting to understand SDK API implementation differences. Mentions 'my checkout flow', clearly app-dev context."
+  },
+  {
+    "query": "I'm comparing init.rc differences between android-13.0.0_r84 and android-16.0.0_r4 specifically around when zygote starts. There seems to be a reordering related to the device_config service.",
+    "expected": "aosp-platform-development",
+    "rationale": "Direct AOSP version comparison, init.rc + zygote + boot ordering. Hardcore platform work."
+  },
+  {
+    "query": "My app uses Retrofit and OkHttp to call our backend. Sometimes on slow networks I see the request hang for 30+ seconds even with a 10-second timeout configured. What's going on?",
+    "expected": "neither",
+    "rationale": "Network library question. Retrofit/OkHttp behavior, not Android platform. Outside both skills' scope (unless the user later mentions ConnectivityManager throttling, in which case app-dev could activate)."
+  },
+  {
+    "query": "How does the Car cluster app subscribe to PERF_VEHICLE_SPEED_DISPLAY through VehiclePropertyManager in AAOS 16? I'm building a similar custom HUD module.",
+    "expected": "aosp-platform-development",
+    "rationale": "AAOS automotive work, VHAL property subscription, AAOS 16 specifically. Multiple platform-dev triggers."
+  },
+  {
+    "query": "When the user revokes the CAMERA permission in Settings while my app is running, what exactly happens to my CameraDevice instance? Does it get closed automatically or do I get an exception on next use?",
+    "expected": "android-app-development",
+    "rationale": "App dev wanting to understand runtime permission revocation semantics. Will benefit from AOSP context (CameraService kill-on-revoke logic)."
+  },
+  {
+    "query": "Help me write unit tests for my ViewModel using kotlinx.coroutines.test. I'm not sure how to handle the runTest scope and TestDispatcher.",
+    "expected": "neither",
+    "rationale": "Pure testing/coroutines question. No platform context."
+  },
+  {
+    "query": "How do I override the stock CarLauncher in my SnappOS build to use our custom launcher? I'm working on the device-product makefile and the manifest intent filters.",
+    "expected": "aosp-platform-development",
+    "rationale": "AOSP product build, device-product makefiles, manifest at platform level, launcher override. AAOS work."
+  },
+  {
+    "query": "My app needs to detect if it's running on an automotive device. What's the best way to do this from app code?",
+    "expected": "android-app-development",
+    "rationale": "App dev wondering about an API. Probably PackageManager.hasSystemFeature(FEATURE_AUTOMOTIVE) — explainable from SDK docs but app-dev skill can add AOSP context if needed."
+  },
+  {
+    "query": "Walk me through how ActivityManagerService handles process death notifications, specifically the linkToDeath callback chain that fires when a process is killed.",
+    "expected": "aosp-platform-development",
+    "rationale": "Deep platform internals. ActivityManagerService is the canonical framework class for platform-dev work."
+  },
+  {
+    "query": "On Android 15, my app's notification doesn't show on the lock screen even though I set VISIBILITY_PUBLIC. Permission is granted. What changed?",
+    "expected": "android-app-development",
+    "rationale": "App dev seeing platform behavior change in Android 15. Will use AOSP source to explain what changed in NotificationManagerService."
+  },
+  {
+    "query": "I'm setting up a CI/CD pipeline for my Android app using GitHub Actions. What's the best matrix strategy for testing across multiple API levels with emulators?",
+    "expected": "neither",
+    "rationale": "DevOps / CI question. Not about platform internals or app code itself."
+  },
+  {
+    "query": "How does the platform decide which AccessibilityService to grant SYSTEM_ALERT_WINDOW to? I'm reading AccessibilityManagerService and want to understand the gating.",
+    "expected": "aosp-platform-development",
+    "rationale": "Direct reading of platform-side service implementation. AccessibilityManagerService is a frameworks/base/services/ component."
+  },
+  {
+    "query": "What does targetSdk 35 change about implicit intents to system components? I'm preparing to bump from 34 and want to know what will break.",
+    "expected": "android-app-development",
+    "rationale": "App dev preparing a targetSdk bump. Wants to understand the platform's compatibility-gated changes. Classic app-dev migration scenario."
+  },
+  {
+    "query": "Help me debug why my Room database migration from version 5 to 6 is failing with a foreign key constraint violation.",
+    "expected": "neither",
+    "rationale": "Room library / SQL question, not platform internals."
+  },
+  {
+    "query": "I'm building a custom ROM and I want to disable the SetupWizard for headless devices. Where in init.rc and the build system does SetupWizard get conditionally included?",
+    "expected": "aosp-platform-development",
+    "rationale": "ROM developer, init.rc, build system. Multiple platform-dev triggers."
+  },
+  {
+    "query": "Why does the system show 'My App is using battery' even when my app isn't doing anything visible? I have no foreground services, no scheduled work, nothing.",
+    "expected": "android-app-development",
+    "rationale": "App dev concerned about Android's battery attribution. Will need AOSP context (BatteryStatsService, wakelock attribution) to fully answer."
+  },
+  {
+    "query": "In AOSP 16, the new registerSupportedValueChangeCallback API was added to CarPropertyManager. How does the HAL side need to be updated to support this?",
+    "expected": "aosp-platform-development",
+    "rationale": "AOSP 16-specific API, VHAL HAL implementation. Pure platform work."
+  },
+  {
+    "query": "Can you explain what happens when I call BroadcastReceiver.goAsync()? When should I use it vs. just doing the work in onReceive directly?",
+    "expected": "android-app-development",
+    "rationale": "App dev wanting to understand an SDK API behavior. Will benefit from AOSP context on broadcast lifetime."
+  },
+  {
+    "query": "I want to add support for a new Vehicle HAL property in my custom VHAL implementation. The property is a vendor-specific int32 array. What files do I need to touch in hardware/interfaces and packages/services/Car?",
+    "expected": "aosp-platform-development",
+    "rationale": "VHAL custom property work, references hardware/interfaces and packages/services/Car explicitly. Platform engineering."
+  }
+]
