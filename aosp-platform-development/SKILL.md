@@ -1,6 +1,6 @@
 ---
 name: aosp-platform-development
-description: "Use this skill whenever the user is reading, debugging, modifying, or asking deep questions about Android Open Source Project (AOSP) framework code. This includes AndroidManifest.xml at the platform level, .bp/.mk build files, Soong, Make, init.rc scripts, SELinux policies (.te/.fc/.if), HIDL/AIDL interfaces, vendor HALs, VHAL, AAOS automotive components (CarService, SystemUI Car variants, cluster apps), system_server internals, PackageManager, ActivityManager, WindowManager, SystemUI, kernel-userspace interfaces, ROM development, or comparing how a subsystem evolved between Android releases 13-16. Trigger on: framework, AOSP, AAOS, platform, system_server, SystemUI, init.rc, Soong, VHAL, CarService, PackageManager, ActivityManager, or references files under packages/services/Car, frameworks/base, hardware/interfaces, system/, vendor/. Also trigger for cross-version comparisons, investigating Doze/JobScheduler internals, or debugging issues that point at platform code rather than app code."
+description: "Use this skill whenever the user is reading, debugging, modifying, or asking deep questions about Android Open Source Project (AOSP) framework code. This includes AndroidManifest.xml at the platform level, .bp/.mk build files, Soong, Make, init.rc scripts, SELinux policies (.te/.fc/.if), HIDL/AIDL interfaces, vendor HALs, VHAL, AAOS automotive components (CarService, SystemUI Car variants, cluster apps), system_server internals, PackageManager, ActivityManager, WindowManager, SystemUI, kernel-userspace interfaces, ROM development, or comparing how a subsystem evolved between Android releases 13-17 — including across minor releases (r1, r2, ..., rN) within a single major. Trigger on: framework, AOSP, AAOS, platform, system_server, SystemUI, init.rc, Soong, VHAL, CarService, PackageManager, ActivityManager, or references files under packages/services/Car, frameworks/base, hardware/interfaces, system/, vendor/. Also trigger for cross-version comparisons, investigating when an API was added/changed/removed at a specific release_tag, investigating Doze/JobScheduler internals, or debugging issues that point at platform code rather than app code."
 ---
 
 # AOSP platform development
@@ -16,9 +16,10 @@ who reads or modifies code under `frameworks/`, `packages/services/`,
 
 If a Lightrion AOSP MCP server is connected, prefer it for semantic
 search across the AOSP source. Lightrion indexes the latest release tag
-of AOSP 13, 14, 15, and 16, and exposes these tools (the MCP server may
-be named `lightrion-aosp-public`, `lightrion-aosp`, or similar — look
-for tools with these names whose descriptions mention AOSP/Android):
+of AOSP 13, 14, 15, 16, and 17, with **per-minor-release coverage**
+inside each major (r1 through the latest). The MCP server may be named
+`lightrion-aosp-public`, `lightrion-aosp`, or similar — look for tools
+with these names whose descriptions mention AOSP/Android:
 
 | Tool | Purpose |
 |------|---------|
@@ -67,7 +68,7 @@ them as complementary, not competing:
    tools let you walk the graph.
 
 4. **SYNTHESIZE** — formulate the answer with concrete file paths,
-   line numbers, and release tag (e.g., `frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java:14289 (android-16.0.0_r4)`).
+   line numbers, and release tag (e.g., `frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java:14289 (android-17.0.0_r1)`).
 
 For details and worked examples, see `references/workflow-mcp-and-local.md`.
 
@@ -75,17 +76,32 @@ For details and worked examples, see `references/workflow-mcp-and-local.md`.
 
 AOSP changes substantially between releases. **Every claim you make
 about AOSP code must be anchored to a specific release tag** (e.g.,
-`android-16.0.0_r4`, `android-15.0.0_r36`).
+`android-17.0.0_r1`, `android-15.0.0_r36`).
 
 - When calling `search_code`, pass the `version` argument matching the
   release the user is targeting. If unknown, use the default (typically
-  16) and ask the user to confirm.
+  17) and ask the user to confirm.
 - When citing a file in your answer, include the release tag inline:
-  `CarService.java:128 (android-16.0.0_r4)` not just `CarService.java:128`.
+  `CarService.java:128 (android-17.0.0_r1)` not just `CarService.java:128`.
 - If the user is comparing versions, run `search_code` with each
   version argument separately, then synthesize. The user-facing
   Compare tool at https://search.lightrion.com/compare can do this
   visually if the user wants to see it side-by-side.
+
+### Per-minor-release queries
+
+Each indexed chunk carries a `release_tags` array showing every minor
+release (r1, r2, ..., rN) where the code appears. When the user asks
+"in which minor release did X change?" or "since when does this
+behavior exist?", pass the `release_tag` argument to `search_code`
+to target a specific minor release:
+
+```
+search_code(query="...", version="15", release_tag="android-15.0.0_r20")
+```
+
+Or pass `release_tag="*"` to query across the full minor-release
+history of a major — useful for archaeology queries.
 
 See `references/version-conventions.md` for the full release tag map
 and when each version's behavior matters.
@@ -123,7 +139,7 @@ gives you symbol resolution. They complement each other.
 
 Example: "The relevant code is at
 `packages/services/Car/service/src/com/android/car/CarPropertyService.java:128`
-in android-16.0.0_r4 ([view on cs.android.com](https://cs.android.com/...))."
+in android-17.0.0_r1 ([view on cs.android.com](https://cs.android.com/...))."
 
 ## Anti-patterns to avoid
 

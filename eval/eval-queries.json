@@ -148,5 +148,20 @@
     "query": "I want to add support for a new Vehicle HAL property in my custom VHAL implementation. The property is a vendor-specific int32 array. What files do I need to touch in hardware/interfaces and packages/services/Car?",
     "expected": "aosp-platform-development",
     "rationale": "VHAL custom property work, references hardware/interfaces and packages/services/Car explicitly. Platform engineering."
+  },
+  {
+    "query": "I'm investigating CarPropertyService changes between AOSP 16 and the brand-new AOSP 17. Specifically, did getProperty() get any new signature variants or behavior tweaks at android-17.0.0_r1?",
+    "expected": "aosp-platform-development",
+    "rationale": "AAOS engineer doing cross-major version comparison including the latest AOSP 17 release. Pure platform work, exercises AOSP 17 trigger."
+  },
+  {
+    "query": "Between android-14.0.0_r45 and android-14.0.0_r60, did the BroadcastQueue logic change? My users on the older minor release see different broadcast delivery latency than users on the newer one.",
+    "expected": "android-app-development",
+    "rationale": "App dev hitting a behavior delta across minor releases of the same major. Exercises the per-minor-release / release_tag trigger."
+  },
+  {
+    "query": "Forking AOSP 17 for an OEM build targeting embedded display panels. How does SurfaceFlinger handle composition at 60Hz vs 120Hz refresh in 17, and what changed from 16?",
+    "expected": "aosp-platform-development",
+    "rationale": "OEM forking AOSP 17, SurfaceFlinger platform internals, cross-version comparison. Multiple platform-dev triggers including the new AOSP 17 anchor."
   }
 ]

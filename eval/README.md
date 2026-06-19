@@ -16,12 +16,12 @@ Conversely, an over-pushy description causes a skill to fire on
 irrelevant prompts (over-triggering), wasting context and biasing
 Claude's reasoning. The eval set catches both failure modes.
 
-## Distribution of the 30 eval queries
+## Distribution of the 33 eval queries
 
 | Expected skill | Count | Rationale |
 |----------------|-------|-----------|
-| `aosp-platform-development` | 12 | Framework engineers, AAOS, ROM devs, OEM, SELinux, VHAL, init.rc, etc. |
-| `android-app-development`   | 11 | App devs with platform-impacting issues, behavior changes, SDK internals |
+| `aosp-platform-development` | 15 | Framework engineers, AAOS, ROM devs, OEM, SELinux, VHAL, init.rc, cross-major (incl. AOSP 17) |
+| `android-app-development`   | 11 | App devs with platform-impacting issues, behavior changes, SDK internals, minor-release deltas |
 | Neither (should not trigger) | 7 | Pure app dev, DevOps, library questions, code review — should not activate either skill |
 
 Includes intentional edge cases:
@@ -107,6 +107,20 @@ should say "NOT for platform engineers modifying AOSP source".
 ## Iteration log
 
 Track changes here as you iterate.
+
+### v0.2.0
+
+- Added AOSP 17 (`android-17.0.0_r1`) to indexed releases. Default
+  version bumped from 16 to 17.
+- Added per-minor-release coverage feature: each indexed chunk carries
+  a `release_tags` array; `release_tag` can be passed to `search_code`
+  to target a specific minor release or set `release_tag="*"` for
+  archaeology.
+- Trigger descriptions in both SKILL.md files extended to mention
+  AOSP 17 explicitly, minor-release queries, and API 37 mapping.
+- 3 new eval queries added covering AOSP 17 (platform fork, AAOS API
+  evolution) and minor-release deltas (app-dev BroadcastQueue
+  scenario). Total now 33.
 
 ### v0.1.0 (initial)
 

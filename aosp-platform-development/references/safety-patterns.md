@@ -33,7 +33,10 @@ genuine regression. Always confirm where the equivalent check now
 lives before assuming "the platform got safer".
 
 How to detect: search the same concept across two versions and look
-for code that has no obvious analog in the newer one.
+for code that has no obvious analog in the newer one. For finer-grained
+detection within a major, use `release_tag="*"` to surface a chunk's
+`release_tags` array — a gap in the array indicates the chunk was
+removed at a specific minor release.
 
 ## Pattern 3: Permission gates dropped under refactor
 
@@ -71,11 +74,14 @@ If found, verify whether the intent was to check the caller.
 `@hide` APIs in `frameworks/base/core/java/android/...` can be used
 by app code via reflection (or by privileged apps directly), but they
 have weak compatibility guarantees. A method signature that's stable
-across 14/15 may change in 16, breaking downstream code that depended
-on it.
+across 14/15 may change in 16/17, breaking downstream code that
+depended on it. The minor-release granularity helps here: the chunk's
+`release_tags` array shows the exact range of minor releases over
+which a signature was stable, so you can give the user a precise
+upgrade-impact window.
 
 How to detect: when the user is debugging "this worked in 14 but
-doesn't in 16", check if the API touched is `@hide` and whether its
+doesn't in 17", check if the API touched is `@hide` and whether its
 signature or behavior changed.
 
 ## How to communicate findings

@@ -33,18 +33,24 @@ get you to the right file fast.
 When you want to read the code that runs on a device with a given API
 level, look at the matching AOSP release:
 
-| Android API level | AOSP version | Release tag        |
-|-------------------|--------------|--------------------|
-| 33 (Android 13)   | 13           | android-13.0.0_r84 |
-| 34 (Android 14)   | 14           | android-14.0.0_r75 |
-| 35 (Android 15)   | 15           | android-15.0.0_r36 |
-| 36 (Android 16)   | 16           | android-16.0.0_r4  |
+| Android API level | AOSP version | Latest release tag  |
+|-------------------|--------------|---------------------|
+| 33 (Android 13)   | 13           | android-13.0.0_r84  |
+| 34 (Android 14)   | 14           | android-14.0.0_r75  |
+| 35 (Android 15)   | 15           | android-15.0.0_r36  |
+| 36 (Android 16)   | 16           | android-16.0.0_r4   |
+| 37 (Android 17)   | 17           | android-17.0.0_r1   |
 
 Note: a device running Android 14 has some patches applied from later
 quarterly releases (r75 vs the initial r1). For most app-dev
 purposes, the differences within a major version are minor; the
 release tag indexed by Lightrion is the most recent that captures
 the bulk of fixes.
+
+If you need to target an intermediate minor release (e.g. r50 of
+Android 14, to investigate a specific monthly security patch), pass
+`release_tag="android-14.0.0_r50"` to `search_code`. Per-minor-release
+queries are MCP-only.
 
 ## "SDK side" vs "server side"
 
@@ -89,6 +95,13 @@ behavior changes that frequently surprise app developers:
 
 - More predictive cache management for background apps.
 - Updated permission grant flows for some sensitive permissions.
+
+### Android 17 (API 37)
+
+- Most recent major. Behavior changes catalog is still emerging — many
+  LLMs predate this release entirely. When a user mentions targeting
+  API 37 and asks why behavior differs from API 36, search Lightrion
+  with `version="17"` rather than relying on training knowledge.
 
 When the user says "this used to work, now it doesn't", check whether
 they updated their `targetSdk` recently and whether the API they're

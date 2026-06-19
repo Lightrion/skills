@@ -16,14 +16,16 @@ keyword-matching misses concepts that aren't named exactly. Semantic
 search finds the right places by meaning, not by string match.
 
 **How:** rephrase the user's question to emphasize concepts. Use the
-`version` parameter matching the AOSP release the user targets.
+`version` parameter matching the AOSP release the user targets. When
+the user is asking about a specific minor release ("in r20 of
+AOSP 15..."), add the `release_tag` argument to narrow the search.
 
 ```
 User: "How does WorkManager keep running in Doze?"
 
 search_code(
     query="WorkManager Doze mode JobScheduler constraint exemption",
-    version="16",
+    version="17",
     limit=8
 )
 ```
@@ -46,7 +48,7 @@ search_code returned a chunk in JobSchedulerService.java around
 line 14289. Before claiming "JobScheduler exempts work-driven jobs
 from Doze", read the actual logic:
 
-get_chunk(chunk_id="<from search result>", version="16")
+get_chunk(chunk_id="<from search result>", version="17")
 ```
 
 ### EXPAND — follow the graph
@@ -76,7 +78,7 @@ explanations like "AOSP uses a delay mechanism in Doze" are useless.
 Concrete citations make the answer auditable.
 
 Good:
-> "In android-16.0.0_r4, the staggered exit-Doze delay lives in
+> "In android-17.0.0_r1, the staggered exit-Doze delay lives in
 > `JobSchedulerService.java:14289-14315`. The constant
 > `mBackgroundJobsDelay` (line 14302) is checked against the job's
 > rush_eligible flag; non-rush-eligible jobs are deferred by the
@@ -89,14 +91,14 @@ Bad:
 ## Worked example: end-to-end
 
 **User question:** "How does the cluster app subscribe to vehicle speed
-in AAOS 16?"
+in AAOS 17?"
 
 ### DISCOVER
 
 ```
 search_code(
     query="cluster app vehicle speed subscription VehiclePropertyManager CarPropertyManager",
-    version="16",
+    version="17",
     limit=8
 )
 ```
@@ -109,7 +111,7 @@ Returns top hits including:
 ### CONFIRM
 
 ```
-get_chunk(chunk_id="<ClusterCarPropertyClient one>", version="16")
+get_chunk(chunk_id="<ClusterCarPropertyClient one>", version="17")
 ```
 
 You see the cluster registers a callback for property
@@ -130,7 +132,7 @@ user's actual concern.
 
 ### SYNTHESIZE
 
-> "In android-16.0.0_r4, the cluster app subscribes to vehicle speed via
+> "In android-17.0.0_r1, the cluster app subscribes to vehicle speed via
 > `CarPropertyManager.registerCallback()` at
 > `packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java:425`.
 > The cluster-specific binding is in
@@ -138,10 +140,10 @@ user's actual concern.
 > `PERF_VEHICLE_SPEED_DISPLAY` (defined at `VehiclePropertyIds.java:42`)
 > at 1 Hz on the cluster's main thread.
 >
-> Note: AOSP 16 introduced `subscribePropertyEvents()` as a richer
-> alternative to the older `registerCallback()`. If you're writing
-> new code, prefer the new API — it supports variable update rates
-> and per-area subscriptions."
+> Note: starting in AOSP 16, `subscribePropertyEvents()` was introduced
+> as a richer alternative to the older `registerCallback()`. If you're
+> writing new code, prefer the new API — it supports variable update
+> rates and per-area subscriptions."
 
 The user has a verifiable answer, knows what's new in 16, and can
 follow up by clicking the cs.android.com link surfaced in the
@@ -156,7 +158,8 @@ Lightrion shines at **conceptual search**. It's overkill for:
 - "Show me the imports of file Y" — use Read.
 - "List all files in directory Z" — use Glob.
 - "What changed between two commits of file W?" — use git, not
-  Lightrion. Lightrion indexes release tags, not diffs.
+  Lightrion. Lightrion indexes release tags (and per-minor-release
+  coverage for archaeology), not arbitrary commit diffs.
 
 Use Lightrion when the user's question requires understanding the code,
 not just inspecting it.

@@ -1,6 +1,6 @@
 ---
 name: android-app-development
-description: Use this skill whenever the user is developing an Android app (in Kotlin or Java, with Jetpack/Compose/Views) and either (1) something in the Android platform is behaving unexpectedly and they need to understand why, (2) they want to know what an Android SDK API actually does under the hood, (3) they're debugging a platform interaction that the documentation doesn't fully explain (Doze, JobScheduler, broadcasts, background restrictions, foreground services, activity lifecycle, permission grants, BroadcastReceiver delivery, intent routing, package visibility, etc.), or (4) they're comparing how an API behaves across different Android versions they're targeting. Trigger whenever the user is working in an `app/` module with `build.gradle.kts`, an AndroidManifest with `<application>` (not platform-level), or mentions "my app", "the SDK", "Jetpack", "Compose", "Activity", "Service", "BroadcastReceiver", "ContentProvider", "WorkManager", "ViewModel", "minSdk", "targetSdk", Play Store, Play Console, or Android Studio. Also trigger when the user says "why is Android doing X" or "I don't understand why the framework Y".
+description: Use this skill whenever the user is developing an Android app (in Kotlin or Java, with Jetpack/Compose/Views) and either (1) something in the Android platform is behaving unexpectedly and they need to understand why, (2) they want to know what an Android SDK API actually does under the hood, (3) they're debugging a platform interaction that the documentation doesn't fully explain (Doze, JobScheduler, broadcasts, background restrictions, foreground services, activity lifecycle, permission grants, BroadcastReceiver delivery, intent routing, package visibility, etc.), (4) they're comparing how an API behaves across different Android versions they're targeting (API 33-37 / Android 13-17), or (5) they want to know in which minor release (r1, r2, ..., rN) of a major Android version a behavior change shipped. Trigger whenever the user is working in an `app/` module with `build.gradle.kts`, an AndroidManifest with `<application>` (not platform-level), or mentions "my app", "the SDK", "Jetpack", "Compose", "Activity", "Service", "BroadcastReceiver", "ContentProvider", "WorkManager", "ViewModel", "minSdk", "targetSdk", Play Store, Play Console, or Android Studio. Also trigger when the user says "why is Android doing X" or "I don't understand why the framework Y".
 ---
 
 # Android app development with AOSP context
@@ -55,9 +55,9 @@ https://aosp-rag.lightrion.com to set it up (free, rate-limited).
 When the user asks about an SDK API's real behavior, follow this flow:
 
 1. **Identify the AOSP version that matches the user's `targetSdk`.**
-   API 34 → AOSP 14, API 35 → AOSP 15, API 36 → AOSP 16. If the user
-   is targeting API 33 or older, the latest behavior may not match
-   what's running on their users' devices.
+   API 34 → AOSP 14, API 35 → AOSP 15, API 36 → AOSP 16, API 37 → AOSP 17.
+   If the user is targeting API 33 or older, the latest behavior may not
+   match what's running on their users' devices.
 
 2. **Search the AOSP framework for the implementing class.** Android
    SDK APIs are usually defined in `frameworks/base/core/java/android/.../`.
@@ -78,7 +78,7 @@ Example flow for "Why does my WorkManager not run in Doze?":
 ```
 search_code(
     query="WorkManager Doze mode constraint exemption JobScheduler",
-    version="16"
+    version="17"
 )
 ```
 
@@ -143,6 +143,32 @@ where the code lives.
   `@SystemApi` annotations exist for a reason. If a user wants to do
   something the public SDK doesn't support, suggest a real solution,
   not reflection that will break next year.
+
+## Per-minor-release queries — useful for "which Android security patch?"
+
+Each indexed chunk carries a `release_tags` array showing every minor
+release (r1, r2, ..., rN) where it appears. For app devs, this is most
+useful in two cases:
+
+1. **"On which security patch did this change ship?"** — when a user
+   on Android 14 says "my code worked last month but broke after the
+   monthly update", you can search for the API/method they're hitting
+   and look at the `release_tags` to see which r-tag introduced the
+   change.
+
+2. **"Is my targetSdk pinned to a behavior that's still present?"** —
+   if the user supports Android 14 (API 34) on devices that span r1
+   through r75, you can confirm whether the code path they rely on
+   is in every release_tag or only a subset.
+
+To narrow to a specific minor release:
+
+```
+search_code(query="...", version="14", release_tag="android-14.0.0_r50")
+```
+
+The web UI at search.lightrion.com exposes the latest tag per major
+only; minor-release queries are MCP-only.
 
 ## When the user is debugging across multiple Android versions
 

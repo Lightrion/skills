@@ -108,9 +108,17 @@ cs.android.com when navigation is what the user wants.
 These skills are versioned together with the indexed AOSP releases
 they expect on the Lightrion server:
 
-| Version | Indexed AOSP releases                                 |
-|---------|-------------------------------------------------------|
-| 0.1.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4         |
+| Version | Indexed AOSP releases                                                |
+|---------|----------------------------------------------------------------------|
+| 0.2.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1             |
+| 0.1.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4                        |
+
+Lightrion also indexes **per-minor-release coverage** within each
+major (r1 through the latest), so queries can target a specific minor
+release via the `release_tag` argument — useful for "in which release
+did this method change?" questions. This granularity is exposed via
+the MCP API; the web UI at search.lightrion.com exposes the latest
+tag per major.
 
 When the Lightrion server bumps to newer release tags (e.g., r5 for
 quarterly maintenance), the skills' `references/version-conventions.md`
