@@ -98,31 +98,126 @@ between 14 and 15 (static → instance field, for testability). Knowing
 this lets you tell the user "your fork at AAOS 13 r84 is built on a
 materially different API surface than AAOS 14 r1+".
 
+## How chunks carry version information
+
+Every chunk returned by Lightrion (from `search_code`, `get_chunk`, or
+`diff_versions`) carries metadata that makes cross-version archaeology
+cheap:
+
+### Compact release_tags
+
+`release_tags` is returned in a **range form**, e.g.
+`["r1-r24", "r27-r84"]` instead of the full
+`["android-13.0.0_r1", "android-13.0.0_r2", …]` array. About 85% fewer
+tokens per result, and gaps in coverage (above, r25/r26 — Google didn't
+publish those minor releases) become visible at a glance. The major
+version is implicit in the chunk's `version` field, which is why the
+ranges drop the `android-XX.0.0_` prefix.
+
+### first_seen_release / last_seen_release
+
+Each chunk also carries `first_seen_release` and `last_seen_release` as
+full release strings (e.g. `"android-14.0.0_r29"`). These are pre-computed
+boundaries that answer "when did this code first appear?" and "is it
+still present in the latest indexed release?" without parsing the
+`release_tags` array. They're also valid values you can pass directly
+back to `search_code` or `get_file` via the `release_tag` argument.
+
+### Content-addressable chunk_ids
+
+`chunk_id` is a content hash of the chunk body. Two practical
+consequences:
+
+1. **Identical code across versions → identical `chunk_id`.** If a
+   method exists unchanged in AOSP 14 and AOSP 17, both versions'
+   chunks share the same `chunk_id`. The `start_line` / `end_line` may
+   differ (the code may have shifted within the file), but the chunk
+   itself is byte-identical.
+
+2. **`diff_versions`' `unchanged` bucket is byte-perfect by
+   construction.** It's computed as a set intersection on chunk_ids,
+   not as a heuristic. When `diff_versions` says a method is unchanged
+   between two versions, that's guaranteed equality, not a similarity
+   score. The same is true in reverse: the `modified` bucket contains
+   pairs with the same `(file_path, symbol_name)` but different
+   `chunk_id` — content is guaranteed to differ.
+
+This is why the `verify=true` argument on `diff_versions` is largely
+informational rather than corrective: the structural classification is
+already deterministic.
+
 ## Comparing across versions
 
-When the user wants to know "what changed between X and Y", two
-options:
-
-**Major-to-major** — two searches:
+When the user wants to know "what changed between X and Y", the
+preferred tool is **`diff_versions`** — it runs both searches in
+parallel and classifies chunks into 5 buckets:
 
 ```
-search_code(query="...", version="15", limit=5)
-search_code(query="...", version="16", limit=5)
+diff_versions(
+    query="...",
+    version_a="15",
+    version_b="16",
+    limit=10
+)
 ```
 
-Compare results. If they differ in meaningful ways (file moved,
-signature changed, behavior reversed), surface that as the finding.
+Returns `unchanged`, `modified`, `moved`, `only_in_a`, `only_in_b`
+arrays plus a `summary` with counts. Reading the response is much more
+useful than reading two raw `search_code` results — the structural
+matching is done for you, and the `unchanged` and `modified` buckets
+are byte-perfect by construction (see "Content-addressable chunk_ids"
+above).
 
-**Minor-to-minor** within a major — use the `release_tags` array on
-each chunk:
+Use the `moved` bucket to spot directory renames, method moves, and
+extracted-to-new-file refactors. Use `only_in_b` to see what was added
+in the newer version, `only_in_a` to see what was removed.
+
+### Minor-to-minor within a major
+
+`diff_versions` also supports comparing two minor releases of the same
+major — useful for questions like "what shipped in the September 2024
+quarterly maintenance release of Android 14?" or "what's different
+between r45 and r60 of Android 14?". Pass full release tags on **both**
+sides:
+
+```
+diff_versions(
+    query="BroadcastQueue deliverToReceiverLocked",
+    version_a="android-14.0.0_r29",
+    version_b="android-14.0.0_r75",
+    limit=10
+)
+```
+
+The response includes a `diff_mode` field
+(`"major_to_major"` or `"minor_to_minor"`) and echoes
+`release_tag_a` / `release_tag_b` so the caller can confirm which
+axes were actually diffed. Same classification semantics (chunk_id
+content hashes), same byte-perfect guarantees on `unchanged` and
+`modified`.
+
+If you only have one release tag (e.g. comparing r29 with the latest
+indexed of a major), pass it explicitly on one side and the bare major
+on the other — but note that this is a major-to-major diff, since both
+sides resolve to the same major and the unspecified side is ambiguous.
+For unambiguous results, always pass tags on both sides for
+minor-to-minor.
+
+### Broad archaeology across all minor releases
+
+For "in which release_tag did this method first appear / get changed?"
+questions where you don't know which two tags to compare a priori,
+use `search_code` with `release_tag="*"` and inspect the
+`release_tags` array (and the `first_seen_release` /
+`last_seen_release` fields) on each chunk:
 
 ```
 search_code(query="...", version="15", release_tag="*")
 ```
 
-The returned `release_tags` arrays tell you which minor releases
-each chunk appears in. A gap or boundary in the arrays = a refactor
-or rewrite at that release.
+A gap or boundary in the `release_tags` arrays signals a refactor or
+rewrite at that release. The `first_seen_release` is often the
+fastest answer when the user's question is "when was this added?".
 
 Or point the user at the Compare tool at
 https://search.lightrion.com/compare which does this visually with a

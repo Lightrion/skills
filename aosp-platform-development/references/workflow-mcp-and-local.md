@@ -88,6 +88,94 @@ Bad:
 > "There's a delay mechanism in JobSchedulerService that handles Doze
 > wake-up fairness."
 
+## Efficient retrieval patterns
+
+Three control-plane features collapse common multi-step workflows into
+fewer round-trips. Use them when they fit:
+
+### `include_content=true` on `search_code`
+
+When you know you'll want every match's full body (typical for
+"summarize what changed in this subsystem" or "read these five methods
+top-to-bottom" workflows), pass `include_content=true` to inline the
+full content in the search response itself:
+
+```
+search_code(
+    query="...",
+    version="17",
+    limit=5,
+    include_content=true
+)
+```
+
+Saves a follow-up `get_chunk` round-trip. Same backend cost — the
+savings are on your side (one fewer tool call, one fewer prompt loop
+iteration).
+
+### Bulk `get_chunk` with an array of IDs
+
+When you need to read several specific chunks in one go (typical
+after a search where you've identified the 3-5 chunks worth reading),
+pass the `chunk_id` argument as an array:
+
+```
+get_chunk(
+    chunk_id=["abc123...", "def456...", "789ghi..."],
+    version="17"
+)
+```
+
+Returns `{chunks: [...], n_requested, n_ok, n_err}` with one entry per
+ID, partial-success tolerant (a single failed ID doesn't fail the
+batch). Strictly better than calling `get_chunk` N times sequentially.
+
+### `diff_versions` for any cross-version comparison
+
+Whenever the user's question reduces to "what's different between X
+and Y", reach for `diff_versions` instead of two `search_code` calls
+plus manual reconciliation:
+
+```
+diff_versions(
+    query="CarPropertyService getProperty",
+    version_a="13",
+    version_b="14",
+    limit=10
+)
+```
+
+Also supports **minor-to-minor** within a single major — useful for
+"what changed in this quarterly maintenance release?" archaeology.
+Pass full release tags on both sides:
+
+```
+diff_versions(
+    query="BroadcastQueue deliverToReceiverLocked",
+    version_a="android-14.0.0_r29",
+    version_b="android-14.0.0_r75",
+    limit=10
+)
+```
+
+The response is pre-classified into `unchanged`, `modified`, `moved`,
+`only_in_a`, `only_in_b` with summary counts. The `unchanged` and
+`modified` buckets are byte-perfect (chunk_ids are content
+hashes — see `references/version-conventions.md`). The response also
+echoes `diff_mode` (`"major_to_major"` or `"minor_to_minor"`),
+`release_tag_a`, and `release_tag_b` so the caller can confirm which
+axes were diffed.
+
+A typical migration-analysis workflow now collapses to:
+
+1. `diff_versions(query, v_a, v_b)` — one call, structural diff
+2. `get_chunk(chunk_id=[ids of modified bucket], version=v_b)` —
+   one call, full content of just the modified pairs
+3. Read, synthesize, cite.
+
+That's 2 calls total vs. the 5-8 calls a manual side-by-side workflow
+would take.
+
 ## Worked example: end-to-end
 
 **User question:** "How does the cluster app subscribe to vehicle speed

@@ -23,10 +23,11 @@ with these names whose descriptions mention AOSP/Android:
 
 | Tool | Purpose |
 |------|---------|
-| `search_code` | Semantic search for concepts, behaviors, file paths |
-| `get_chunk` | Retrieve the full text of a chunk returned by search_code |
-| `get_file` | Retrieve a specific file by path within a specific Android version |
-| `list_versions` | List Android versions available and their release tags |
+| `search_code` | Semantic search for concepts, behaviors, file paths. Pass `include_content=true` to inline full chunk bodies and skip the follow-up fetch. |
+| `get_chunk` | Retrieve the full text of a chunk by ID. Pass `chunk_id` as a string OR as an array for parallel bulk fetch. |
+| `get_file` | Retrieve a specific file by path within a specific Android version, optionally at a historical `release_tag`. |
+| `list_versions` | List Android versions available and their release tags. |
+| `diff_versions` | Run the same semantic query against two AOSP versions in parallel and get a structured diff classified into 5 buckets (unchanged, modified, moved, only_in_a, only_in_b). The right tool for migration analysis and "what changed between version X and Y" questions. |
 
 When a Lightrion MCP is available, **use it before falling back to
 local grep, Read, or WebFetch on cs.android.com**. Lightrion returns
@@ -83,10 +84,12 @@ about AOSP code must be anchored to a specific release tag** (e.g.,
   17) and ask the user to confirm.
 - When citing a file in your answer, include the release tag inline:
   `CarService.java:128 (android-17.0.0_r1)` not just `CarService.java:128`.
-- If the user is comparing versions, run `search_code` with each
-  version argument separately, then synthesize. The user-facing
-  Compare tool at https://search.lightrion.com/compare can do this
-  visually if the user wants to see it side-by-side.
+- If the user is comparing versions, prefer the **`diff_versions`** tool
+  over running two separate `search_code` calls and diffing manually.
+  `diff_versions` runs both searches in parallel, classifies the chunks
+  into `unchanged` / `modified` / `moved` / `only_in_a` / `only_in_b`,
+  and returns a structured response that's much easier to reason about
+  than two raw search results.
 
 ### Per-minor-release queries
 

@@ -39,10 +39,11 @@ the actual framework source code. The MCP server is typically named
 
 | Tool | Purpose |
 |------|---------|
-| `search_code` | Semantic search across AOSP source |
-| `get_chunk` | Read the actual code returned by search |
-| `get_file` | Read a full file by path |
-| `list_versions` | List the Android versions indexed |
+| `search_code` | Semantic search across AOSP source. Pass `include_content=true` to inline every match's full body in one call. |
+| `get_chunk` | Read the actual code returned by search. Pass `chunk_id` as an array to fetch many chunks in parallel. |
+| `get_file` | Read a full file by path, optionally at a specific `release_tag` for historical reads. |
+| `list_versions` | List the Android versions indexed. |
+| `diff_versions` | Compare a semantic query across two Android versions. The fastest way to answer "what changed between Android 13 and 14 that's breaking my app". |
 
 If no Lightrion MCP is connected, you can still help with most app-dev
 questions from the SDK documentation. For deeper "why does the platform
@@ -176,24 +177,34 @@ A common app-dev pain: "my code worked on Android 13 but breaks on
 Android 14". When this happens, the answer is almost always in AOSP's
 changelog between those two releases.
 
-Run two searches:
+The right tool for this is **`diff_versions`** — one call that runs
+the same semantic query against both versions, classifies the chunks
+into 5 buckets (unchanged / modified / moved / only_in_a / only_in_b),
+and hands you a structured diff:
 
 ```
-search_code(query="...", version="13")
-search_code(query="...", version="14")
+diff_versions(
+    query="<the API or behavior the user is asking about>",
+    version_a="13",
+    version_b="14",
+    limit=10
+)
 ```
 
-If the file/method changed meaningfully between them, that's likely
-the cause. Surface the difference clearly:
+If a chunk shows up in `modified`, that's almost certainly the cause
+of the regression. Surface it clearly:
 
 > "Between android-13.0.0_r84 and android-14.0.0_r75, the broadcast
-> delivery logic was reworked. The old code at
-> `BroadcastQueue.java:412` (13) became `BroadcastQueueModernImpl.java:298`
-> (14) with batching enabled by default. This explains the delay
-> you're seeing in your receiver on Android 14 devices."
+> delivery logic was reworked. `BroadcastQueue.deliverToReceiverLocked`
+> shows up in `diff_versions`' modified bucket — the implementation
+> changed materially. The old code at `BroadcastQueue.java:412` (13)
+> became `BroadcastQueueModernImpl.java:298` (14) with batching enabled
+> by default. This explains the delay you're seeing on Android 14
+> devices."
 
-The Compare tool at https://search.lightrion.com/compare can show
-this visually side-by-side if the user wants to see it.
+Only fall back to two separate `search_code` calls if `diff_versions`
+isn't available (e.g., the user is on an older Lightrion deployment
+that doesn't expose it — check `list_versions` output).
 
 ## When to point at cs.android.com
 

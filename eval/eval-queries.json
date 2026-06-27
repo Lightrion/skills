@@ -163,5 +163,20 @@
     "query": "Forking AOSP 17 for an OEM build targeting embedded display panels. How does SurfaceFlinger handle composition at 60Hz vs 120Hz refresh in 17, and what changed from 16?",
     "expected": "aosp-platform-development",
     "rationale": "OEM forking AOSP 17, SurfaceFlinger platform internals, cross-version comparison. Multiple platform-dev triggers including the new AOSP 17 anchor."
+  },
+  {
+    "query": "I'm migrating our AAOS fork from 14 to 17 and need a full breakdown of what changed in CarPropertyService — every method that was modified, moved, or added. Give me the structured diff.",
+    "expected": "aosp-platform-development",
+    "rationale": "AAOS migration analysis spanning v14 → v17. Should trigger diff_versions usage explicitly (multi-version structural diff). Tests whether the skill correctly reaches for diff_versions instead of running two search_code calls and reconciling manually."
+  },
+  {
+    "query": "Find all the BroadcastReceiver handling chunks in AOSP 16, then read all of them. I want to understand the full delivery path from sender to receiver without making me ask for each chunk individually.",
+    "expected": "aosp-platform-development",
+    "rationale": "Workflow that strongly hints at include_content=true on search_code (or bulk get_chunk afterward). Tests whether the skill activates the efficient-retrieval patterns instead of doing N sequential get_chunk calls."
+  },
+  {
+    "query": "On Android 14, my app's NotificationChannel importance was IMPORTANCE_HIGH but it shipped as IMPORTANCE_DEFAULT to some users on the September 2024 security patch. Did the platform change how channel importance is enforced between specific minor releases of Android 14?",
+    "expected": "android-app-development",
+    "rationale": "App dev hitting a behavior delta tied to a specific minor release / security patch within Android 14. Should trigger diff_versions in minor-to-minor mode (e.g. android-14.0.0_r29 vs android-14.0.0_r60), exercising the per-minor-release diff path that's unique to Lightrion. Tests whether the skill knows minor-to-minor diff is supported."
   }
 ]

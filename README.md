@@ -73,7 +73,8 @@ in Claude Code. Free, rate-limited, no signup beyond the token.
 ```
 
 3. Restart Claude Code. The MCP tools `search_code`, `get_chunk`,
-   `get_file`, and `list_versions` should now be available.
+   `get_file`, `list_versions`, and `diff_versions` should now be
+   available.
 
 ## How the skills work together
 
@@ -108,10 +109,11 @@ cs.android.com when navigation is what the user wants.
 These skills are versioned together with the indexed AOSP releases
 they expect on the Lightrion server:
 
-| Version | Indexed AOSP releases                                                |
-|---------|----------------------------------------------------------------------|
-| 0.2.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1             |
-| 0.1.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4                        |
+| Version | Indexed AOSP releases                                                | Notes |
+|---------|----------------------------------------------------------------------|-------|
+| 0.3.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1             | Adds `diff_versions` for cross-version structural diff, `include_content=true` on `search_code`, bulk array form on `get_chunk`. Skills updated to prefer these over manual multi-call workflows. |
+| 0.2.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1             | AOSP 17 indexed. Per-minor-release coverage exposed via `release_tag` argument. |
+| 0.1.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4                        | Initial release. |
 
 Lightrion also indexes **per-minor-release coverage** within each
 major (r1 through the latest), so queries can target a specific minor
@@ -119,6 +121,11 @@ release via the `release_tag` argument — useful for "in which release
 did this method change?" questions. This granularity is exposed via
 the MCP API; the web UI at search.lightrion.com exposes the latest
 tag per major.
+
+`chunk_id` values are **content-addressable hashes**: identical code
+across versions yields the same `chunk_id`. This is what makes
+`diff_versions`' `unchanged` classification byte-perfect by
+construction rather than heuristic.
 
 When the Lightrion server bumps to newer release tags (e.g., r5 for
 quarterly maintenance), the skills' `references/version-conventions.md`
