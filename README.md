@@ -73,7 +73,8 @@ in Claude Code. Free, rate-limited, no signup beyond the token.
 ```
 
 3. Restart Claude Code. The MCP tools `search_code`, `get_chunk`,
-   `get_file`, and `list_versions` should now be available.
+   `get_file`, `list_versions` and `diff_versions` should now be
+   available.
 
 ## How the skills work together
 

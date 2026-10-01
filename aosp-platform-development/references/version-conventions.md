@@ -103,15 +103,34 @@ materially different API surface than AAOS 14 r1+".
 When the user wants to know "what changed between X and Y", two
 options:
 
-**Major-to-major** — two searches:
+**Major-to-major** — use `diff_versions`, not two manual searches:
 
 ```
-search_code(query="...", version="15", limit=5)
-search_code(query="...", version="16", limit=5)
+diff_versions(query="...", version_a="15", version_b="16", limit=10)
 ```
 
-Compare results. If they differ in meaningful ways (file moved,
-signature changed, behavior reversed), surface that as the finding.
+It runs both searches and classifies the results into five buckets:
+`unchanged`, `modified`, `moved`, `only_in_a`, `only_in_b`.
+`unchanged` is an intersection of content-addressable chunk ids —
+a hash guarantee, not a similarity score — so "this file is identical
+between the two releases" is something you can state as fact.
+
+**One caveat that matters.** `diff_versions` compares the top-N
+semantic results of each version, not whole trees. So:
+
+- `only_in_b` means "in B's top-N, absent from A's top-N". A good
+  detector of additions, not an exhaustive list.
+- `only_in_a` does **not** mean "removed in B". The entry may well
+  exist in B and simply have ranked lower. Never report `only_in_a`
+  as a deletion without confirming with a targeted `search_code` on
+  version B.
+
+Only the `unchanged` bucket carries a hard guarantee. Say so when you
+rely on it, and hedge on the rest.
+
+The `verify` parameter is a no-op kept for API stability — the chunk
+id intersection already gives byte-equality. Passing it costs nothing
+and changes nothing.
 
 **Minor-to-minor** within a major — use the `release_tags` array on
 each chunk:

@@ -27,6 +27,7 @@ with these names whose descriptions mention AOSP/Android:
 | `get_chunk` | Retrieve the full text of a chunk returned by search_code |
 | `get_file` | Retrieve a specific file by path within a specific Android version |
 | `list_versions` | List Android versions available and their release tags |
+| `diff_versions` | Compare one semantic query across two versions; buckets the results into `unchanged` / `modified` / `moved` / `only_in_a` / `only_in_b` |
 
 When a Lightrion MCP is available, **use it before falling back to
 local grep, Read, or WebFetch on cs.android.com**. Lightrion returns
@@ -83,10 +84,15 @@ about AOSP code must be anchored to a specific release tag** (e.g.,
   17) and ask the user to confirm.
 - When citing a file in your answer, include the release tag inline:
   `CarService.java:128 (android-17.0.0_r1)` not just `CarService.java:128`.
-- If the user is comparing versions, run `search_code` with each
-  version argument separately, then synthesize. The user-facing
-  Compare tool at https://search.lightrion.com/compare can do this
-  visually if the user wants to see it side-by-side.
+- If the user is comparing versions, use `diff_versions` rather than
+  two separate `search_code` calls — it does the pairing for you, and
+  its `unchanged` bucket is an intersection of content-addressable
+  chunk ids, so byte-equality is a guarantee rather than an
+  impression. Note that it compares the top-N results of each side,
+  not whole trees: `only_in_a` means "ranked in A, not in B's top-N",
+  **not** "removed in B". Confirm before reporting a deletion. The
+  user-facing Compare tool at https://search.lightrion.com/compare
+  does this visually if the user wants it side-by-side.
 
 ### Per-minor-release queries
 
