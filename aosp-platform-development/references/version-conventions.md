@@ -14,10 +14,43 @@ just a major version number.
 | 16            | android-16.0.0_r4  | New VHAL APIs, refined Car APIs               |
 | 17 (default)  | android-17.0.0_r1  | Latest. Most LLMs predate it — Lightrion is   |
 |               |                    | one of the few sources that knows it exists   |
+| lineage-23    | lineage-23.0       | LineageOS 23, a downstream fork of AOSP 16    |
 
 When in doubt about which version to query, use 17. If the user is
 working on an OEM platform or forked baseline at an older release,
 ask them which one.
+
+## Non-AOSP versions
+
+Not every indexed version is an AOSP major. `lineage-23` is a
+downstream fork — LineageOS 23, derived from AOSP 16. Two things
+follow, and getting them wrong produces confidently wrong answers:
+
+**Version ids are opaque strings, not numbers.** Do not parse,
+increment or compare them arithmetically. `list_versions` is the only
+authority on what exists.
+
+**A fork's release tag is not an AOSP tag.** `lineage-23.0` is a
+branch name, not an `android-XX.0.0_rN` tag, and the fork's projects
+do not all sit on the same AOSP base. Do not state which AOSP release
+a given fork file derives from unless you have verified it.
+
+### What a fork is actually useful for
+
+The question a fork maintainer asks is rarely "what did they change" —
+it is "what can I leave alone at the next rebase". `diff_versions`
+answers that directly:
+
+```
+diff_versions(query="charging control", version_a="16",
+              version_b="lineage-23", limit=10)
+```
+
+Measured on LineageOS 23 against AOSP 16: of 1,133 manifest projects,
+870 are unmodified AOSP; across the 103 forked projects, 96.99% of
+code files are untouched. Expect the interesting delta to be narrow
+and concentrated — and read `only_in_a` with the caveat below in
+mind.
 
 ## Per-minor-release coverage (release_tag argument)
 

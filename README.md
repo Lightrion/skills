@@ -13,7 +13,7 @@ and how to cite findings precisely.
 
 | Skill | Audience | What it does |
 |-------|----------|--------------|
-| [`aosp-platform-development`](aosp-platform-development/) | Framework engineers, OEM platform teams, AAOS automotive devs, ROM developers | Teaches Claude the MCP-and-local workflow for AOSP work, version-anchored citations, safety-pattern detection, and cs.android.com integration |
+| [`aosp-platform-development`](aosp-platform-development/) | Framework engineers, OEM platform teams, AAOS automotive devs, ROM developers | Teaches Claude the MCP-and-local workflow for AOSP work, version-anchored citations, safety-pattern detection, fork-vs-AOSP comparison, and cs.android.com integration |
 | [`android-app-development`](android-app-development/) | Android app developers using Kotlin/Java + Jetpack | Teaches Claude when to look at AOSP source for app-dev questions (Doze, broadcasts, services, permissions, behavior changes), how to translate platform code back to app-developer language |
 
 Both skills use the same Lightrion MCP server. They differ in
@@ -109,8 +109,9 @@ cs.android.com when navigation is what the user wants.
 These skills are versioned together with the indexed AOSP releases
 they expect on the Lightrion server:
 
-| Version | Indexed AOSP releases                                                |
+| Version | Indexed releases                                                     |
 |---------|----------------------------------------------------------------------|
+| 0.3.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1, lineage-23.0 |
 | 0.2.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1             |
 | 0.1.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4                        |
 
