@@ -143,6 +143,15 @@ call hierarchy, or other code-intelligence features that Lightrion
 doesn't provide. Lightrion gives you semantic retrieval; cs.android.com
 gives you symbol resolution. They complement each other.
 
+**Not for non-AOSP versions.** cs.android.com hosts AOSP only. A
+result from a downstream fork such as `lineage-23` — anything under
+`lineage-sdk/`, `hardware/lineage/`, `vendor/lineage/`, or a
+fork-only app — has no page there, and linking to one hands the user
+a dead link. Point at the fork's own upstream instead
+(github.com/LineageOS for LineageOS). When the file is one the fork
+inherits unmodified from AOSP, the cs.android.com link is valid; if
+you cannot tell which case you are in, say so rather than guess.
+
 Example: "The relevant code is at
 `packages/services/Car/service/src/com/android/car/CarPropertyService.java:128`
 in android-17.0.0_r1 ([view on cs.android.com](https://cs.android.com/...))."

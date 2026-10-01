@@ -23,12 +23,20 @@ ask them which one.
 ## Non-AOSP versions
 
 Not every indexed version is an AOSP major. `lineage-23` is a
-downstream fork — LineageOS 23, derived from AOSP 16. Two things
+downstream fork — LineageOS 23, derived from AOSP 16. Three things
 follow, and getting them wrong produces confidently wrong answers:
 
 **Version ids are opaque strings, not numbers.** Do not parse,
 increment or compare them arithmetically. `list_versions` is the only
 authority on what exists.
+
+**cs.android.com does not host fork code.** Paths that exist only in
+the fork — `lineage-sdk/`, `hardware/lineage/`, `vendor/lineage/`,
+`packages/apps/Aperture` — have no cs.android.com equivalent. Linking
+there produces a dead link. Only surface a cs.android.com link when the
+result comes from an AOSP version, or when the file is one the fork
+inherits unmodified from AOSP (and say so if you cannot tell). For
+LineageOS specifically, the upstream is github.com/LineageOS.
 
 **A fork's release tag is not an AOSP tag.** `lineage-23.0` is a
 branch name, not an `android-XX.0.0_rN` tag, and the fork's projects

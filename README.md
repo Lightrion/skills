@@ -102,7 +102,9 @@ to install both: the MCP server (one config line) and the skills
 These skills also don't replace cs.android.com for **symbol
 navigation** (jump-to-definition, call hierarchy, xref). Lightrion is
 for semantic retrieval. Both skills explicitly suggest linking to
-cs.android.com when navigation is what the user wants.
+cs.android.com when navigation is what the user wants — except for
+non-AOSP versions such as `lineage-23`, whose fork-only code is not
+hosted there.
 
 ## Versioning
 
