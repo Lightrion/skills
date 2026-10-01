@@ -74,7 +74,8 @@ in Claude Code. Free, rate-limited, no signup beyond the token.
 
 3. Restart Claude Code. The MCP tools `search_code`, `get_chunk`,
    `get_file`, `list_versions` and `diff_versions` should now be
-   available.
+   available, plus the security tools `security_bulletin`,
+   `security_lookup` and `security_tag_changes` (Android 14 to 17).
 
 ## How the skills work together
 
@@ -113,6 +114,7 @@ they expect on the Lightrion server:
 
 | Version | Indexed releases                                                     |
 |---------|----------------------------------------------------------------------|
+| 0.4.0   | same as 0.3.0, plus security bulletin data for Android 14 to 17       |
 | 0.3.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1, lineage-23.0 |
 | 0.2.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1             |
 | 0.1.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4                        |
@@ -148,5 +150,8 @@ appreciated.
 - [Lightrion homepage](https://lightrion.com)
 - [search.lightrion.com](https://search.lightrion.com) — web UI to
   try the MCP search interactively (free, rate-limited)
+- [security.lightrion.com](https://security.lightrion.com) - each
+  Android Security Bulletin joined with the public security tags of
+  Android 14 to 17, one page per bulletin
 - [Anthropic's Agent Skills docs](https://code.claude.com/docs/en/skills)
 - [Agent Skills open standard](https://agentskills.io)

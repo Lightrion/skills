@@ -188,5 +188,35 @@
     "query": "Is LineageOS actually more privacy-friendly than stock Android, or is that mostly marketing? Thinking about switching my daily driver.",
     "expected": "neither",
     "rationale": "Second negative control: opinion/comparison about a ROM as a product, no code, no version anchor, nothing Lightrion can answer. Guards against the custom-ROM trigger firing on consumer discussion."
+  },
+  {
+    "query": "Our AAOS 14 fork is on android-security-14.0.0_r27. Is CVE-2026-28581 fixed upstream for 14, and in which commit? I need to know whether we already have it.",
+    "expected": "aosp-platform-development",
+    "rationale": "Fork maintainer, CVE id, android-security tag, needs the fixing commit per major. Should route to the platform skill and use security_lookup, then confirm in the fork."
+  },
+  {
+    "query": "The October Android Security Bulletin just came out. What should we cherry-pick into our Android 15 product branch, which is at android-security-15.0.0_r16? We don't ship the TV or car apps.",
+    "expected": "aosp-platform-development",
+    "rationale": "Monthly security update planning on a fork. security_tag_changes with since_tag and exclude_projects; includes unannounced fixes."
+  },
+  {
+    "query": "android-security-16.0.0_r8 has way more commits than the bulletin lists. What are the extra ones, are they security fixes?",
+    "expected": "aosp-platform-development",
+    "rationale": "Tag content versus bulletin: the unannounced block, follow-ups and platform update tags. Platform skill, security tools."
+  },
+  {
+    "query": "The bulletin says CVE-2025-26432 affects Android 16 but I can't find the fix in our tree. Is it missing from the public tags or are we not affected?",
+    "expected": "aosp-platform-development",
+    "rationale": "Status reading: announced-not-published vs code-absent vs awaiting-tag. The answer depends on the security tools' statuses and evidence."
+  },
+  {
+    "query": "My Pixel says its security patch level is from last month. How do I force it to download this month's update?",
+    "expected": "neither",
+    "rationale": "Negative control for the new security triggers: an end-user device update question. Mentions security patch level, but no code, no CVE, no fork."
+  },
+  {
+    "query": "We use log4j 2.14 in our Spring backend. Is CVE-2021-44228 still a problem and how do we patch it?",
+    "expected": "neither",
+    "rationale": "Negative control: a CVE id outside Android. The CVE pattern alone must not activate the platform skill."
   }
 ]

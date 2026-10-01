@@ -1,6 +1,6 @@
 ---
 name: aosp-platform-development
-description: "Use this skill whenever the user is reading, debugging, modifying, or asking deep questions about Android Open Source Project (AOSP) framework code. This includes AndroidManifest.xml at the platform level, .bp/.mk build files, Soong, Make, init.rc scripts, SELinux policies (.te/.fc/.if), HIDL/AIDL interfaces, vendor HALs, VHAL, AAOS automotive components (CarService, SystemUI Car variants, cluster apps), system_server internals, PackageManager, ActivityManager, WindowManager, SystemUI, kernel-userspace interfaces, ROM development, or comparing how a subsystem evolved between Android releases 13-17 — including across minor releases (r1, r2, ..., rN) within a single major, or comparing a downstream fork such as LineageOS against the AOSP release it derives from. Trigger on: framework, AOSP, AAOS, platform, system_server, SystemUI, init.rc, Soong, VHAL, CarService, PackageManager, ActivityManager, or references files under packages/services/Car, frameworks/base, hardware/interfaces, system/, vendor/. Also trigger on LineageOS, custom ROM, or downstream-fork questions — what a fork adds, changes, or leaves untouched relative to AOSP. Also trigger for cross-version comparisons, investigating when an API was added/changed/removed at a specific release_tag, investigating Doze/JobScheduler internals, or debugging issues that point at platform code rather than app code."
+description: "Use this skill whenever the user is reading, debugging, modifying, or asking deep questions about Android Open Source Project (AOSP) framework code. This includes AndroidManifest.xml at the platform level, .bp/.mk build files, Soong, Make, init.rc scripts, SELinux policies (.te/.fc/.if), HIDL/AIDL interfaces, vendor HALs, VHAL, AAOS automotive components (CarService, SystemUI Car variants, cluster apps), system_server internals, PackageManager, ActivityManager, WindowManager, SystemUI, kernel-userspace interfaces, ROM development, or comparing how a subsystem evolved between Android releases 13-17 — including across minor releases (r1, r2, ..., rN) within a single major, or comparing a downstream fork such as LineageOS against the AOSP release it derives from. Trigger on: framework, AOSP, AAOS, platform, system_server, SystemUI, init.rc, Soong, VHAL, CarService, PackageManager, ActivityManager, or references files under packages/services/Car, frameworks/base, hardware/interfaces, system/, vendor/. Also trigger on LineageOS, custom ROM, or downstream-fork questions — what a fork adds, changes, or leaves untouched relative to AOSP. Also trigger for cross-version comparisons, investigating when an API was added/changed/removed at a specific release_tag, investigating Doze/JobScheduler internals, or debugging issues that point at platform code rather than app code. Also trigger on Android security patching of a platform or fork: Android Security Bulletin, CVE ids (CVE-YYYY-NNNNN), android-security-* tags, security patch level, which commit fixes a CVE on Android 14-17, whether a fork has a fix, or what to pick for a monthly security update."
 ---
 
 # AOSP platform development
@@ -28,6 +28,9 @@ with these names whose descriptions mention AOSP/Android:
 | `get_file` | Retrieve a specific file by path within a specific Android version |
 | `list_versions` | List Android versions available and their release tags |
 | `diff_versions` | Compare one semantic query across two versions; buckets the results into `unchanged` / `modified` / `moved` / `only_in_a` / `only_in_b`. Works across a fork boundary too (e.g. `16` vs `lineage-23`) |
+| `security_bulletin` | One bulletin month for one major: every CVE listing it, whether a public fix exists, in which commit and tag, how sure |
+| `security_lookup` | One CVE or bug id across Android 14-17: status and fixing commits per major |
+| `security_tag_changes` | What an `android-security-*` tag (or a range of tags) fixes, including the security fixes no bulletin mentions |
 
 When a Lightrion MCP is available, **use it before falling back to
 local grep, Read, or WebFetch on cs.android.com**. Lightrion returns
@@ -111,6 +114,31 @@ history of a major — useful for archaeology queries.
 
 See `references/version-conventions.md` for the full release tag map
 and when each version's behavior matters.
+
+## Security bulletins and CVEs
+
+When the question is about a CVE, a bulletin, a security patch level or
+an `android-security-*` tag, use the security tools rather than
+`search_code`: they already join each bulletin with the public commits
+of Android 14 to 17. Typical calls:
+
+```
+security_lookup(query="CVE-2026-28609")
+security_bulletin(version="16", month="2026-09", status=["announced-not-published", "awaiting-tag"])
+security_tag_changes(version="15", tag="android-security-15.0.0_r17", since_tag="android-security-15.0.0_r16")
+```
+
+Read the status before concluding: `awaiting-tag` means too early to
+tell, `announced-not-published` means no public fix (not "not
+vulnerable"), `code-absent` means the patched code is probably not in
+that major. For a `resolved` entry, say whether the link is `certain` or
+`probable`, and quote the `evidence` of a probable one. Then confirm in
+the user's fork (local git or `get_file`) before telling them they have
+the fix.
+
+Statuses, methods, the blocks of a tag, and the workflows for "is this
+CVE fixed in my fork?" and "what do we pick this month?" are in
+`references/security-bulletins.md`.
 
 ## Safety-critical code: flag divergences explicitly
 

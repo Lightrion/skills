@@ -16,13 +16,13 @@ Conversely, an over-pushy description causes a skill to fire on
 irrelevant prompts (over-triggering), wasting context and biasing
 Claude's reasoning. The eval set catches both failure modes.
 
-## Distribution of the 38 eval queries
+## Distribution of the 44 eval queries
 
 | Expected skill | Count | Rationale |
 |----------------|-------|-----------|
-| `aosp-platform-development` | 18 | Framework engineers, AAOS, ROM devs, OEM, SELinux, VHAL, init.rc, cross-major (incl. AOSP 17), fork-vs-AOSP comparison |
+| `aosp-platform-development` | 22 | Framework engineers, AAOS, ROM devs, OEM, SELinux, VHAL, init.rc, cross-major (incl. AOSP 17), fork-vs-AOSP comparison, CVE / security bulletin work on a fork |
 | `android-app-development`   | 11 | App devs with platform-impacting issues, behavior changes, SDK internals, minor-release deltas |
-| Neither (should not trigger) | 9 | Pure app dev, DevOps, library questions, code review, end-user ROM support — should not activate either skill |
+| Neither (should not trigger) | 11 | Pure app dev, DevOps, library questions, code review, end-user ROM support, end-user patch level, non-Android CVE — should not activate either skill |
 
 Includes intentional edge cases:
 
@@ -40,6 +40,11 @@ Includes intentional edge cases:
   so the brand name on its own must not activate it. These two are the
   ones to watch when tuning that description: they are the cheapest way
   to notice it has become too pushy.
+
+- **Security negative controls**: an end-user "security patch level" question
+  and a log4j CVE. The platform skill now triggers on CVE ids and security
+  patch levels; these two check that the words alone, without Android
+  platform or fork code, do not activate it.
 
 ## How to run the evals manually
 

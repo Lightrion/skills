@@ -43,6 +43,7 @@ the actual framework source code. The MCP server is typically named
 | `get_chunk` | Read the actual code returned by search |
 | `get_file` | Read a full file by path |
 | `list_versions` | List the Android versions indexed |
+| `security_lookup` | Status of a CVE on Android 14-17: is there a public fix, in which commit and security tag |
 
 If no Lightrion MCP is connected, you can still help with most app-dev
 questions from the SDK documentation. For deeper "why does the platform
@@ -169,6 +170,16 @@ search_code(query="...", version="14", release_tag="android-14.0.0_r50")
 
 The web UI at search.lightrion.com exposes the latest tag per major
 only; minor-release queries are MCP-only.
+
+When the question names a CVE ("is CVE-2026-28609 fixed on Android
+14?", "which security patch fixed it?"), call
+`security_lookup(query="CVE-...")` instead of searching the code: it
+returns, per major, whether a public fix exists and the security tag
+that carries it. A status of `announced-not-published` means no public
+fix in that version, not that the app is safe; `awaiting-tag` means the
+security tag for that bulletin is not out yet. For a device, the
+security patch level set by the OEM is what matters, and Lightrion
+cannot see OEM builds.
 
 ## When the user is debugging across multiple Android versions
 
