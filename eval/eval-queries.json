@@ -163,5 +163,30 @@
     "query": "Forking AOSP 17 for an OEM build targeting embedded display panels. How does SurfaceFlinger handle composition at 60Hz vs 120Hz refresh in 17, and what changed from 16?",
     "expected": "aosp-platform-development",
     "rationale": "OEM forking AOSP 17, SurfaceFlinger platform internals, cross-version comparison. Multiple platform-dev triggers including the new AOSP 17 anchor."
+  },
+  {
+    "query": "I maintain an AOSP 16 fork for an automotive head unit. LineageOS 23 has charging control that we want. What does Lineage actually add for it, and does it touch the AOSP health HAL or sit beside it?",
+    "expected": "aosp-platform-development",
+    "rationale": "Fork maintainer comparing a downstream fork against the AOSP release it derives from. The real question is porting cost: extension vs modification. Should trigger the fork-comparison path and diff_versions, not two blind searches."
+  },
+  {
+    "query": "Which Binder interfaces does LineageOS 23 add on top of AOSP 16? I need to know what extra surface I'd be taking on.",
+    "expected": "aosp-platform-development",
+    "rationale": "Fork vs AOSP interface delta. Binder/AIDL surface is platform territory, and the generated-symbol problem is exactly what Lightrion covers and grep cannot."
+  },
+  {
+    "query": "We're deciding whether to rebase our ROM onto LineageOS 23 or stay on plain AOSP 16. How much of frameworks/base does Lineage actually modify?",
+    "expected": "aosp-platform-development",
+    "rationale": "ROM developer, rebase decision, quantified divergence question. The useful answer leans on the unchanged bucket (a hash guarantee), so the skill should steer to diff_versions rather than impressions."
+  },
+  {
+    "query": "I'm trying to install LineageOS 21 on my OnePlus 7 Pro but TWRP won't boot after unlocking the bootloader. Any idea what I'm doing wrong?",
+    "expected": "neither",
+    "rationale": "Negative control for the fork triggers. Mentions LineageOS, a device and a ROM workflow, but it is end-user flashing support with no source-code question. The word LineageOS alone must not activate the platform skill."
+  },
+  {
+    "query": "Is LineageOS actually more privacy-friendly than stock Android, or is that mostly marketing? Thinking about switching my daily driver.",
+    "expected": "neither",
+    "rationale": "Second negative control: opinion/comparison about a ROM as a product, no code, no version anchor, nothing Lightrion can answer. Guards against the custom-ROM trigger firing on consumer discussion."
   }
 ]

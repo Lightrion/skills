@@ -16,13 +16,13 @@ Conversely, an over-pushy description causes a skill to fire on
 irrelevant prompts (over-triggering), wasting context and biasing
 Claude's reasoning. The eval set catches both failure modes.
 
-## Distribution of the 33 eval queries
+## Distribution of the 38 eval queries
 
 | Expected skill | Count | Rationale |
 |----------------|-------|-----------|
-| `aosp-platform-development` | 15 | Framework engineers, AAOS, ROM devs, OEM, SELinux, VHAL, init.rc, cross-major (incl. AOSP 17) |
+| `aosp-platform-development` | 18 | Framework engineers, AAOS, ROM devs, OEM, SELinux, VHAL, init.rc, cross-major (incl. AOSP 17), fork-vs-AOSP comparison |
 | `android-app-development`   | 11 | App devs with platform-impacting issues, behavior changes, SDK internals, minor-release deltas |
-| Neither (should not trigger) | 7 | Pure app dev, DevOps, library questions, code review — should not activate either skill |
+| Neither (should not trigger) | 9 | Pure app dev, DevOps, library questions, code review, end-user ROM support — should not activate either skill |
 
 Includes intentional edge cases:
 
@@ -34,6 +34,12 @@ Includes intentional edge cases:
 - **Multi-trigger plat**: "CarUxRestrictionsManagerService in AAOS 16, fault
   defaults, AAOS 14 comparison" — hits multiple platform-dev triggers
   intentionally.
+- **Fork negative controls**: two queries mention LineageOS and expect
+  *neither* skill — a TWRP flashing problem and a privacy opinion. The
+  platform skill lists "LineageOS" and "custom ROM" among its triggers,
+  so the brand name on its own must not activate it. These two are the
+  ones to watch when tuning that description: they are the cheapest way
+  to notice it has become too pushy.
 
 ## How to run the evals manually
 
