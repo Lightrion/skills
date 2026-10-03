@@ -69,6 +69,13 @@ Grep "mBackgroundJobsDelay" frameworks/base/services/core/...
 # Lightrion already linked you to.
 ```
 
+**Across a Binder boundary, use `binder_edges`.** Grep and
+cs.android.com stop at the interface: the dispatch from `IFoo` to its
+implementation goes through generated code (`BnFoo`, `IFoo.Stub`) that
+is not in the source tree. `binder_edges(anchor="IFoo", method="bar")`
+returns the classes that actually implement `bar`, with file:line, and
+`direction="upstream"` returns the Java call sites that bind `IFoo`.
+
 ### SYNTHESIZE — answer with citations
 
 **Use:** your own words, with file:line:release_tag citations.

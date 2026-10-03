@@ -43,6 +43,7 @@ the actual framework source code. The MCP server is typically named
 | `get_chunk` | Read the actual code returned by search |
 | `get_file` | Read a full file by path |
 | `list_versions` | List the Android versions indexed |
+| `binder_edges` | From a system service's AIDL interface (e.g. `IVibratorManagerService`), the class that implements it in system_server or a HAL, and where each method is defined |
 | `security_lookup` | Status of a CVE on Android 14-17: is there a public fix, in which commit and security tag |
 
 If no Lightrion MCP is connected, you can still help with most app-dev
@@ -60,10 +61,15 @@ When the user asks about an SDK API's real behavior, follow this flow:
    If the user is targeting API 33 or older, the latest behavior may not
    match what's running on their users' devices.
 
-2. **Search the AOSP framework for the implementing class.** Android
-   SDK APIs are usually defined in `frameworks/base/core/java/android/.../`.
-   The implementation often lives in `frameworks/base/services/...`
-   (the system_server side).
+2. **Find the implementing class.** Android SDK APIs are usually
+   defined in `frameworks/base/core/java/android/.../`. The manager
+   class you call (`VibratorManager`, `CameraManager`...) forwards over
+   Binder to a system service, and the implementation lives in
+   `frameworks/base/services/...` (the system_server side) or in a HAL.
+   When you know the service's AIDL interface, `binder_edges` jumps
+   straight to it:
+   `binder_edges(anchor="IVibratorManagerService", method="vibrate", version="16")`.
+   Otherwise, `search_code` for the behavior.
 
 3. **Read the actual code.** Get the chunk, follow it. The
    implementation almost always reveals something the docs don't say:

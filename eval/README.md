@@ -16,12 +16,12 @@ Conversely, an over-pushy description causes a skill to fire on
 irrelevant prompts (over-triggering), wasting context and biasing
 Claude's reasoning. The eval set catches both failure modes.
 
-## Distribution of the 44 eval queries
+## Distribution of the 46 eval queries
 
 | Expected skill | Count | Rationale |
 |----------------|-------|-----------|
-| `aosp-platform-development` | 22 | Framework engineers, AAOS, ROM devs, OEM, SELinux, VHAL, init.rc, cross-major (incl. AOSP 17), fork-vs-AOSP comparison, CVE / security bulletin work on a fork |
-| `android-app-development`   | 11 | App devs with platform-impacting issues, behavior changes, SDK internals, minor-release deltas |
+| `aosp-platform-development` | 23 | Framework engineers, AAOS, ROM devs, OEM, SELinux, VHAL, init.rc, cross-major (incl. AOSP 17), fork-vs-AOSP comparison, CVE / security bulletin work on a fork, Binder/HAL implementation lookup |
+| `android-app-development`   | 12 | App devs with platform-impacting issues, behavior changes, SDK internals, minor-release deltas, which system service handles an SDK call |
 | Neither (should not trigger) | 11 | Pure app dev, DevOps, library questions, code review, end-user ROM support, end-user patch level, non-Android CVE — should not activate either skill |
 
 Includes intentional edge cases:

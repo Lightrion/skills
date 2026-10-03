@@ -73,8 +73,8 @@ in Claude Code. Free, rate-limited, no signup beyond the token.
 ```
 
 3. Restart Claude Code. The MCP tools `search_code`, `get_chunk`,
-   `get_file`, `list_versions` and `diff_versions` should now be
-   available, plus the security tools `security_bulletin`,
+   `get_file`, `list_versions`, `diff_versions` and `binder_edges`
+   should now be available, plus the security tools `security_bulletin`,
    `security_lookup` and `security_tag_changes` (Android 14 to 17).
 
 ## How the skills work together
@@ -114,6 +114,7 @@ they expect on the Lightrion server:
 
 | Version | Indexed releases                                                     |
 |---------|----------------------------------------------------------------------|
+| 0.6.0   | same as 0.5.0, plus the Binder graph (`binder_edges`) for 13 to 17 and lineage-23 |
 | 0.5.0   | same as 0.4.0, plus security bulletin data for Android 14 to 17       |
 | 0.4.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1, lineage-23.0 |
 | 0.3.0   | 13.0.0_r84, 14.0.0_r75, 15.0.0_r36, 16.0.0_r4, 17.0.0_r1             |

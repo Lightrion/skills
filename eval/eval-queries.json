@@ -218,5 +218,15 @@
     "query": "We use log4j 2.14 in our Spring backend. Is CVE-2021-44228 still a problem and how do we patch it?",
     "expected": "neither",
     "rationale": "Negative control: a CVE id outside Android. The CVE pattern alone must not activate the platform skill."
+  },
+  {
+    "query": "In AOSP 16, which classes actually implement the HIDL 7.0 audio effect IEffect::enable(), and in which file and line? I keep landing on the interface definition, not the code that runs.",
+    "expected": "aosp-platform-development",
+    "rationale": "Binder/HAL implementation question: which class implements a HIDL interface method. Should trigger the platform skill (and its binder_edges guidance)."
+  },
+  {
+    "query": "My app calls VibratorManager.vibrate() with a CombinedVibration on Android 16 (targetSdk 36) and some devices ignore it. Which system service class actually receives that call and what does it check before vibrating?",
+    "expected": "android-app-development",
+    "rationale": "App developer asking what the platform does behind an SDK call; the answer crosses a Binder boundary into system_server."
   }
 ]

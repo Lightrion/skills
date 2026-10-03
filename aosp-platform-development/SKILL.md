@@ -1,6 +1,6 @@
 ---
 name: aosp-platform-development
-description: "Use this skill whenever the user is reading, debugging, modifying, or asking deep questions about Android Open Source Project (AOSP) framework code. This includes AndroidManifest.xml at the platform level, .bp/.mk build files, Soong, Make, init.rc scripts, SELinux policies (.te/.fc/.if), HIDL/AIDL interfaces, vendor HALs, VHAL, AAOS automotive components (CarService, SystemUI Car variants, cluster apps), system_server internals, PackageManager, ActivityManager, WindowManager, SystemUI, kernel-userspace interfaces, ROM development, or comparing how a subsystem evolved between Android releases 13-17 — including across minor releases (r1, r2, ..., rN) within a single major, or comparing a downstream fork such as LineageOS against the AOSP release it derives from. Trigger on: framework, AOSP, AAOS, platform, system_server, SystemUI, init.rc, Soong, VHAL, CarService, PackageManager, ActivityManager, or references files under packages/services/Car, frameworks/base, hardware/interfaces, system/, vendor/. Also trigger on LineageOS, custom ROM, or downstream-fork questions — what a fork adds, changes, or leaves untouched relative to AOSP. Also trigger for cross-version comparisons, investigating when an API was added/changed/removed at a specific release_tag, investigating Doze/JobScheduler internals, or debugging issues that point at platform code rather than app code. Also trigger on Android security patching of a platform or fork: Android Security Bulletin, CVE ids (CVE-YYYY-NNNNN), android-security-* tags, security patch level, which commit fixes a CVE on Android 14-17, whether a fork has a fix, or what to pick for a monthly security update."
+description: "Use this skill whenever the user is reading, debugging, modifying, or asking deep questions about Android Open Source Project (AOSP) framework code. This includes AndroidManifest.xml at the platform level, .bp/.mk build files, Soong, Make, init.rc scripts, SELinux policies (.te/.fc/.if), HIDL/AIDL interfaces, vendor HALs, VHAL, AAOS automotive components (CarService, SystemUI Car variants, cluster apps), system_server internals, PackageManager, ActivityManager, WindowManager, SystemUI, kernel-userspace interfaces, ROM development, or comparing how a subsystem evolved between Android releases 13-17 — including across minor releases (r1, r2, ..., rN) within a single major, or comparing a downstream fork such as LineageOS against the AOSP release it derives from. Trigger on: framework, AOSP, AAOS, platform, system_server, SystemUI, init.rc, Soong, VHAL, CarService, PackageManager, ActivityManager, or references files under packages/services/Car, frameworks/base, hardware/interfaces, system/, vendor/. Also trigger on LineageOS, custom ROM, or downstream-fork questions — what a fork adds, changes, or leaves untouched relative to AOSP. Also trigger for cross-version comparisons, investigating when an API was added/changed/removed at a specific release_tag, investigating Doze/JobScheduler internals, or debugging issues that point at platform code rather than app code. Also trigger on Binder and HAL implementation questions: which class implements an AIDL or HIDL interface, a HAL or a system service, where a binder method is actually implemented (BnFoo, BnHwFoo, IFoo.Stub, asInterface), which HAL version a default implementation serves, or who calls a binder interface. Also trigger on Android security patching of a platform or fork: Android Security Bulletin, CVE ids (CVE-YYYY-NNNNN), android-security-* tags, security patch level, which commit fixes a CVE on Android 14-17, whether a fork has a fix, or what to pick for a monthly security update."
 ---
 
 # AOSP platform development
@@ -27,6 +27,7 @@ with these names whose descriptions mention AOSP/Android:
 | `get_chunk` | Retrieve the full text of a chunk returned by search_code |
 | `get_file` | Retrieve a specific file by path within a specific Android version |
 | `list_versions` | List Android versions available and their release tags |
+| `binder_edges` | The Binder graph: for an AIDL/HIDL interface, its implementing classes (C++ HAL and Java framework), the definition of each method with file:line, and the Java call sites that bind it. Follows the generated stub code that text search cannot |
 | `diff_versions` | Compare one semantic query across two versions; buckets the results into `unchanged` / `modified` / `moved` / `only_in_a` / `only_in_b`. Works across a fork boundary too (e.g. `16` vs `lineage-23`) |
 | `security_bulletin` | One bulletin month for one major: every CVE listing it, whether a public fix exists, in which commit and tag, how sure |
 | `security_lookup` | One CVE or bug id across Android 14-17: status and fixing commits per major |
@@ -75,6 +76,65 @@ them as complementary, not competing:
    line numbers, and release tag (e.g., `frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java:14289 (android-17.0.0_r1)`).
 
 For details and worked examples, see `references/workflow-mcp-and-local.md`.
+
+## Who implements this interface? Use binder_edges
+
+For "where is `<method>` of `<interface>` implemented", "who implements
+`IFoo`", "which class handles this binder call", **call `binder_edges`
+first**, not `search_code`. The link between an interface and its
+implementation goes through code generated at build time (`BnFoo`,
+`BnHwFoo`, `IFoo.Stub`, `asInterface`) that never exists in the source,
+so text search can only guess it. `binder_edges` resolves it from the
+source and returns each implementing class and each method definition.
+
+The efficient path:
+
+1. If you only know the subsystem ("the audio effect HAL"), one
+   `search_code` to find the interface name. Otherwise go straight to 2.
+2. `binder_edges(anchor=..., version=..., method=...)`. Set `method`
+   (a bare name, e.g. `"enable"`) whenever the question is about one
+   method: an interface can have hundreds of edges, the filter keeps
+   only that method's routes and the classes that define it.
+3. Read the code: `get_chunk(chunk_id)` for linked edges. When an edge
+   says `unlinked: true`, no indexed chunk covers the definition (small
+   functions, large split classes): read it with
+   `get_file(file_path, start_line=...)` at its `location`. Don't guess
+   another range.
+
+```
+binder_edges(anchor="android.hardware.audio.effect@7.0::IEffect",
+             method="enable", version="16")
+-> Effect::enable at .../all-versions/default/Effect.cpp:741 (unlinked)
+   Effect::enable at .../common/7.0/example/Effect.cpp:54
+get_file(file_path="hardware/interfaces/audio/effect/all-versions/default/Effect.cpp",
+         version="16", start_line=735, end_line=750)
+```
+
+What to read in the result:
+
+- **Homonyms.** One simple name can cover several interfaces:
+  `IEffect` is the AIDL audio HAL, the HIDL 7.0 HAL and
+  `android.media.IEffect` (app to audioserver). Each edge carries its
+  qualified `interface`; anchor on the qualified form
+  (`android.media.IEffect`, `android.hardware.gnss@2.0::IGnss`) to get
+  only one. Never merge them in your answer.
+- **Several implementations of one method** are normal: a default
+  implementation and an example or mock, one per HIDL version, a
+  framework class and a HAL class. Say which one runs in production.
+- **Inherited methods.** A `routes_to` target can be a base class
+  (`EffectImpl::command` serves most AIDL software effects that don't
+  redefine it). The concrete class may not appear for that method.
+- **Callers.** `direction="upstream"` on an interface returns the Java
+  call sites that bind it (`binds`, with `confidence`).
+- **History.** `first_seen` / `at_release` tell since which minor
+  release the code that exists today has existed. The graph is built
+  from the latest minor of each major: a binding removed before it is
+  not in the graph.
+- **Forks.** Same tool with `version="lineage-23"`.
+
+Answer from the graph, not from "the usual structure of this
+directory": when `binder_edges` names the class and the line, cite
+them.
 
 ## Always cite versions
 
@@ -186,6 +246,9 @@ in android-17.0.0_r1 ([view on cs.android.com](https://cs.android.com/...))."
 
 ## Anti-patterns to avoid
 
+- **Don't infer an implementation from naming or directory layout.**
+  For any "who implements" or "where is this binder method" question,
+  `binder_edges` gives the actual class and line.
 - **Don't fabricate line numbers.** If a search result is truncated or
   you don't have the file open, say so explicitly rather than guess.
 - **Don't conflate AOSP versions.** Saying "in AOSP" without a release
